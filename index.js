@@ -1,5 +1,54 @@
+/* DISPLAY */
+
+const canvas = document.querySelector('.canvas');
+const buttons = document.querySelectorAll('.theme-btn');
+
+const canvasSize = {'rows': 20, 'columns': 20};
+let game_loop = undefined
+
+const generateDisplayCanvas = (rows, columns) => {
+  // make rows for pixels to be in
+  for (let i = 0; i < rows; i++) {
+    let row = document.createElement('div');
+    row.setAttribute("class", "row");
+
+    //make pixels in each row
+    for (let j = 0; j < columns; j++) {
+      let pixel = document.createElement('div');
+      pixel.setAttribute("class", "pixel");
+      pixel.dataset.x = j
+      pixel.dataset.y = i
+      pixel.dataset.on = false
+        // color pixel when mouse enters it with the defined theme
+      pixel.addEventListener("click",flipCell);
+      row.appendChild(pixel);
+    }
+    canvas.appendChild(row);
+  }
+}
+
+const switchBlackWhite = pixel => {
+  color_to_set = pixel.dataset.on == "false" ? "black" : " "
+  pixel.setAttribute("style", `background-color: ${color_to_set}`);
+}
+
+const flipCell = (e) => {
+  let pixel = e.target
+  switchBlackWhite(pixel)
+  pixel.dataset.on = pixel.dataset.on == "true" ? false : true
+  dataCanvas[pixel.dataset.y][pixel.dataset.x] = !dataCanvas[pixel.dataset.y][pixel.dataset.x]
+}
+
+const clearCanvas = () => {
+  pixels.forEach(pixel => pixel.setAttribute('style', 'background-color: '))
+  dataCanvas = genDataCanvas(canvasSize.rows, canvasSize.columns)
+  pixels.forEach(pixel=>{pixel.dataset.on=false})
+  pause()
+}
+
+/* GAME  */
+
 const coord_changes = [[0,1],[0,-1],[1,0],[-1,0],[1,1],[-1,-1],[-1,1],[1,-1]]
-const canv_size = {"x": 3, "y": 3}
 
 const sum_arrs = (arr1, arr2) => {
   return arr1.map(function (num, idx) {
@@ -7,14 +56,14 @@ const sum_arrs = (arr1, arr2) => {
   })
 }
 
-const gen_canvas = (width, height) => {
-  canvas = Array.from(Array(width), () => new Array(height))
+const genDataCanvas = (width, height) => {
+  data = Array.from(Array(width), () => new Array(height))
 
-  for (row_num in canvas) {
-    canvas[row_num].fill(false)
+  for (row_num in data) {
+    data[row_num].fill(false)
   }
 
-  return canvas
+  return data
 }
 
 const cells_to_flip = canvas => {
@@ -31,7 +80,7 @@ const cells_to_flip = canvas => {
 }
 
 const within_canvas = (coord) => {
-  return (coord[0] > -1 && coord[1] > -1) && (coord[0] < canv_size.y && coord[1] < canv_size.x);
+  return (coord[0] > -1 && coord[1] > -1) && (coord[0] < canvasSize.rows && coord[1] < canvasSize.columns);
 }
 
 const count_neighors = (canvas, x, y)=> {
@@ -76,22 +125,485 @@ const flip_cells = (canvas, to_flip) => {
   })
 }
 
-const console_display = canvas => {
-  canvas.forEach(row=>{
-    to_print = ""
-    row.forEach(cell=>{
-      cell ? to_print += "[X]" : to_print += "[ ]"
-    })
-    console.log(to_print)
+
+const step = ()=> {
+  flip_cells(dataCanvas, cells_to_flip(dataCanvas))
+  updateDisplay(dataCanvas)
+}
+
+const play = () => {
+  clearInterval(game_loop);
+  game_loop = setInterval(step, 300)
+}
+
+const pause = () => {
+  clearInterval(game_loop);
+}
+
+const updateDisplay = (data) => {
+  pixels.forEach((pixel) => {
+    if (dataCanvas[pixel.dataset.y][pixel.dataset.x]) {
+      pixel.setAttribute('style', 'background-color: black')
+      pixel.dataset.on = true;
+    } else {
+      pixel.setAttribute('style', 'background-color: ')
+      pixel.dataset.on = false;
+    }
   })
 }
 
-canvas = [[false, false, false],
-          [true,true,true],
-          [false,false,false]]
+/*DRIVER*/
 
-for (let i = 0; i < 5; i++) {
-  console_display(canvas);
-  console.log("")
-  flip_cells(canvas, cells_to_flip(canvas));
-}
+document.querySelector('#clear').addEventListener('click', clearCanvas);
+document.querySelector('#play').addEventListener('click', play);
+document.querySelector('#step').addEventListener('click', step);
+document.querySelector('#pause').addEventListener('click', pause);
+
+generateDisplayCanvas(canvasSize.rows, canvasSize.columns);
+const pixels = document.querySelectorAll('.pixel');
+let dataCanvas = genDataCanvas(canvasSize.rows, canvasSize.columns)
+
+dataCanvas = [
+  [
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false
+  ],
+  [
+    false,
+    true,
+    true,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    true,
+    false,
+    false,
+    false
+  ],
+  [
+    false,
+    true,
+    true,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    true,
+    false,
+    true,
+    false
+  ],
+  [
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    true,
+    true,
+    false,
+    false
+  ],
+  [
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false
+  ],
+  [
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false
+  ],
+  [
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false
+  ],
+  [
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false
+  ],
+  [
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false
+  ],
+  [
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    true,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false
+  ],
+  [
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    true,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false
+  ],
+  [
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    true,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false
+  ],
+  [
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false
+  ],
+  [
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false
+  ],
+  [
+    false,
+    false,
+    false,
+    true,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false
+  ],
+  [
+    false,
+    false,
+    true,
+    false,
+    true,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false
+  ],
+  [
+    false,
+    false,
+    true,
+    false,
+    true,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    true,
+    true
+  ],
+  [
+    false,
+    false,
+    false,
+    true,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    true,
+    true,
+    true
+  ],
+  [
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    true,
+    true
+  ],
+  [
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false
+  ]
+]
+
+updateDisplay(dataCanvas);
